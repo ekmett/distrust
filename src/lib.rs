@@ -13,28 +13,27 @@ pub trait Rank {
   fn rank(self, index: usize) -> usize;
 }
 
+ 
 macro_rules! impl_all {
-  ($impl_macro:ident: $($id:ident),*) => {
-    $(
-      $impl_macro!($id);
-    )*
-  }
+  ($impl_macro:ident: $($id:ident),*) => { $($impl_macro!($id);)* }
 }
 
 macro_rules! impl_rank_select {
-  ($id:ident) => {
-    impl Select for $id {
+  ($type:ty) => {
+    impl Select for $type {
       #[inline]
       fn select(self, j: usize) -> usize { pdep(1 << j, self).trailing_zeros() as usize }
     }
-    impl Rank for $id {
+    impl Rank for $type {
       #[inline]
-      fn rank(self, i: usize) -> usize { bzhi(self,i as $id).count_ones() as usize }
+      fn rank(self, i: usize) -> usize { bzhi(self,i as $type).count_ones() as usize }
     }
-    impl Rank for &Vec<$id> {
+    /// O(n)
+    impl Rank for &Vec<$type> {
       fn rank(self, i: usize) -> usize {
-        let q = i/64;
-        (0..q).fold(0,|a,b| a + self[b].count_ones() as usize) + self[q].rank(i%64)
+        const BITS: usize = std::mem::size_of::<$type>()*8;
+        let q = i/BITS;
+        (0..q).fold(0,|a,b| a + self[b].count_ones() as usize) + self[q].rank(i%BITS)
       }
     }
   };
