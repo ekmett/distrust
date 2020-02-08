@@ -52,31 +52,29 @@ struct Poppy {
 impl Poppy {
   pub fn new(raw: Vec<u64>) -> Poppy {
     let len = raw.len();
-    let (q,r) = (len>>5,len&31);
-    let mut prefix_sum = 0u64;
-    let mut huge: Vec<u64> = vec![];
-    let mut index: Vec<u64> = (0..q).map(|i| {
-      if bzhi(i,27) == 0 { // this should be done by inverting this loop
-        huge.push(prefix_sum);
-        prefix_sum = 0;
+    let (q,r,hq) = (len>>5,len&31,len>>26);
+    let step = |block:usize,k:usize,index: &mut Vec<u64>,sum: u64| -> u64 {
+      let mut sub = [0u32;4];
+      for j in 0..k { sub[j>>3] += raw[(block<<5)+j].count_ones() }
+      index.push((sub[0]+(sub[1]<<10)+(sub[2]<<20)) as u64 + (sum<<32));
+      sum+((sub[0]+sub[1]+sub[2]+sub[3]) as u64)
+    };
+    let mut index: Vec<u64> = Vec::with_capacity((len+(1<<5)-1)>>5);
+    let mut huge: Vec<u64> = Vec::with_capacity((len+(1<<26)-1)>>26);
+    let huge_sum = (0..hq).fold(0,|huge_acc,h| {
+      huge.push(huge_acc);
+      let h21 = h<<21;
+      huge_acc + (0..1<<21).fold(0,|block_acc,i| step(h21+i,32,&mut index, block_acc))
+    });
+    if bzhi(len,26) != 0 {
+      huge.push(huge_sum);
+      let hq21 = hq<<21;
+      let block_sum = (0..bextr(len,5,21)).fold(0,|block_acc,i| step(hq21+i,32,&mut index, block_acc));
+      if r != 0 {
+        step(q,r,&mut index,block_sum);
       }
-      let mut sub:[u32;4] = [0;4];
-      for j in 0..32 { sub[j>>3] += raw[(i<<5)+j].count_ones() }
-      let result = (sub[0] + (sub[1]<<10) + (sub[2]<<20)) as u64 + (prefix_sum<<32);
-      prefix_sum += (sub[0] + sub[1] + sub[2] + sub[3]) as u64;
-      // every 4gb we should clear the current prefix_sum and write it into the huge index
-      result
-    }).collect();
-    if r != 0 { // deal with any partial blocks at the end
-      if bzhi(q,27) == 0 { // this should be done by inverting this loop
-        huge.push(prefix_sum);
-        prefix_sum = 0;
-      }
-      let mut sub:[u32;4] = [0;4];
-      for j in 0..r { sub[j>>3] += raw[(q<<5)+j].count_ones() }
-      index.push((sub[0] + (sub[1]<<10) + (sub[2]<<20)) as u64 + (prefix_sum<<32));
     }
-    Poppy { raw, huge, index }
+    Poppy{raw,huge,index}
   }
 }
 
