@@ -98,9 +98,8 @@ impl Rank for &Poppy {
     let word_rank = (0..z).fold(0,|a,b| a+self.raw[base + b].count_ones()) as usize;
     let m = bzhi(w as u32, 10*bextr(i,9,2) as u32);
     let subblock_rank = ((m&1023) + bextr(m,10,10) + bextr(m,20,10)) as usize;
-    let block_rank = (w >> 32) as usize;
-    let huge_rank = self.huge[i >> 32] as usize; // allow structures > 4gb
-    huge_rank + block_rank + subblock_rank + word_rank + self.raw[base + z].rank(i & 63)
+    let block_rank = (self.huge[i >> 32] + (w >> 32)) as usize; // allow structures > 4gb
+    block_rank + subblock_rank + word_rank + self.raw[base + z].rank(i & 63)
   }
 }
 
