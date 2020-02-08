@@ -1,7 +1,7 @@
 extern crate distrust;
-use distrust::{rank,select};
+use distrust::*;
 
 fn main() {
-  println!("{:?}",select(0b00101u64,1));
-  println!("{:?}",rank(0b11101u64,1));
+  println!("{:?}",0b00101u64.select(1));
+  println!("{:?}",0b11101u64.rank(1));
 }
