@@ -9,11 +9,18 @@ pub trait Select {
   fn select(self, count: usize) -> usize;
 }
 
+pub fn select<T: Select>(x: T, count: usize) -> usize {
+  x.select(count)
+}
+
 pub trait Rank {
   fn rank(self, index: usize) -> usize;
 }
 
- 
+pub fn rank<T: Rank>(x: T, index: usize) -> usize {
+  x.rank(index)
+}
+
 macro_rules! impl_all {
   ($impl_macro:ident: $($id:ident),*) => { $($impl_macro!($id);)* }
 }
@@ -41,12 +48,8 @@ macro_rules! impl_rank_select {
 
 impl_all!(impl_rank_select: u8, u16, u32, u64);
 
-// compact rank structure, represents up to 2^32 entries in exchange for ~.03 bits per bit storage overhead
-struct Poppy {
-  raw: Vec<u64>,
-  huge: Vec<u64>,
-  index: Vec<u64>
-}
+// compact rank structure, ~.03 bits per bit storage overhead
+pub struct Poppy { raw: Vec<u64>, huge: Vec<u64>, index: Vec<u64> }
 
 impl Poppy {
   pub fn new(raw: Vec<u64>) -> Poppy {
@@ -103,6 +106,7 @@ impl Rank for &Poppy {
     block_rank + subblock_rank + word_rank + self.raw[base + z].rank(i & 63)
   }
 }
+
 
 #[cfg(test)]
 mod tests {
