@@ -1,0 +1,15 @@
+[package]
+name = "distrust"
+version = "0.1.0"
+authors = ["Edward Kmett <ekmett@gmail.com>"]
+description = "a succinct playground"
+repository = "https://github.com/ekmett/distrust"
+edition = "2018"
+
+[badges]
+travis-ci = { repository = "ekmett/distrust" }
+appveyor = { repository = "ekmett/distrust" }
+
+[dependencies]
+# memmap = "0.7.0"
+bitintr = "0.1.6"
