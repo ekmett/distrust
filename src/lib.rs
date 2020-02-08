@@ -42,8 +42,12 @@ macro_rules! impl_rank_select {
 
 impl_all!(impl_rank_select: u8, u16, u32, u64);
 
-// small poppy structure, represents up to 2^32 entries
-struct Poppy { raw: Vec<u64>, huge: Vec<u64>, index: Vec<u64> }
+// compact rank structure, represents up to 2^32 entries in exchange for ~.03 bits per bit storage overhead
+struct Poppy {
+  raw: Vec<u64>,
+  huge: Vec<u64>,
+  index: Vec<u64>
+}
 
 impl Poppy {
   pub fn new(raw: Vec<u64>) -> Poppy {
@@ -72,7 +76,7 @@ impl Poppy {
       for j in 0..r { sub[j>>3] += raw[(q<<5)+j].count_ones() }
       index.push((sub[0] + (sub[1]<<10) + (sub[2]<<20)) as u64 + (prefix_sum<<32));
     }
-    Poppy { raw: raw, huge: huge, index: index }
+    Poppy { raw, huge, index }
   }
 }
 
