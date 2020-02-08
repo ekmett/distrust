@@ -1,5 +1,5 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
+#![allow(dead_code,unused_variables)]
+
 extern crate bitintr;
 use bitintr::x86::bmi::{bextr};
 use bitintr::x86::bmi2::{pdep,bzhi};
