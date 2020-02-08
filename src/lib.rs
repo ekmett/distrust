@@ -109,6 +109,7 @@ impl Rank for &Poppy {
 
 #[cfg(test)]
 mod tests {
+  use super::*;
   #[test]
   fn it_works() {
     assert_eq!(0b00101u64.select(1),2);
