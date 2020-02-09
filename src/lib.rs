@@ -82,8 +82,6 @@ impl Idx {
 // compact rank structure, ~.03 bits per bit storage overhead, O(1) rank
 pub struct Poppy(Vec<usize>,Vec<Idx>,Vec<u64>);
 
-// fn sum<T: IntoIterator>(xs: T) -> T::Item where T::Item : std::iter::Sum { xs.into_iter().sum::<T::Item>() }
-
 impl Poppy {
   pub fn new(raw: Vec<u64>) -> Poppy {
     let N = raw.len();
@@ -133,7 +131,7 @@ impl Rank for &Poppy {
   }
 }
 
-// Assumes lo <= hi. returns hi if the predicate is never true over [l..h)
+// Assumes lo <= hi. returns hi if the predicate is never true over [lo..hi)
 #[inline]
 fn binary_search<P>(mut lo: usize, mut hi: usize, p: P) -> usize where P: Fn(usize) -> bool {
   loop {
@@ -168,8 +166,7 @@ impl Select1 for &Poppy {
     let (sd,si) = select1_block(m.1 as usize, i); // now we've found the subblock
     o += sd; i -= sd;
     let mut p = (bi<<5)|(si<<3);
-    // linear final scan avoids walking past end of partial blocks
-    loop {
+    loop { // linear final scan
       let w = self.2[p];
       let d = w.count_ones() as usize;
       if d > i {
