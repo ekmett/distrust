@@ -13,3 +13,4 @@ appveyor = { repository = "ekmett/distrust" }
 [dependencies]
 # memmap = "0.7.0"
 bitintr = "0.1.6"
+# num-integer = "0.1.42"
