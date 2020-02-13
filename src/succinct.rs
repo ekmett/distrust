@@ -7,6 +7,11 @@ use bitintr::x86::bmi2::{pdep,bzhi};
 use crate::util::{binary_search,div_rem};
 use std::cmp::min;
 use std::iter::{IntoIterator,FromIterator};
+use std::mem::size_of;
+
+pub trait Access {
+  fn access(self, index:  usize) -> bool;
+}
 
 pub trait Select1 {
   fn select1(self, count: usize) -> usize;
@@ -45,6 +50,9 @@ macro_rules! impl_rank_select {
       #[inline]
       fn rank(self, i: usize) -> usize { bzhi(self,i as $type).count_ones() as usize }
     }
+    impl Access for $type {
+      fn access(self, i: usize) -> bool { (self & 1 << i) != 0 }
+    }
     impl Select0 for $type {
       #[inline]
       fn select0(self, j: usize) -> usize { pdep(1<<j,!self).trailing_zeros() as usize }
@@ -56,8 +64,15 @@ macro_rules! impl_rank_select {
     /// O(n)
     impl Rank for &Vec<$type> {
       fn rank(self, i: usize) -> usize {
-        let (q,r) = div_rem(i,8*std::mem::size_of::<$type>());
+        let (q,r) = div_rem(i,8*size_of::<$type>());
         (0..q).fold(0,|a,b| a + self[b].count_ones() as usize) + self[q].rank(r)
+      }
+    }
+    /// O(1)
+    impl Access for &Vec<$type> {
+      fn access(self, i: usize) -> bool {
+        let (q,r) = div_rem(i,8*size_of::<$type>());
+        self[q].access(r) 
       }
     }
   };
@@ -127,6 +142,10 @@ impl Rank for &Poppy {
     let r = (0..z).fold(0,|a,b| a+self.2[w+b].count_ones());
     self.0[i>>31] + (self.1[i>>11].base(bextr(i as u32,9,2)) + r) as usize + self.2[w+z].rank(i&63)
   }
+}
+
+impl Access for &Poppy {
+  fn access(self, i: usize) -> bool { self.2.access(i) }
 }
 
 fn select1_block(m:usize,i:usize) -> (usize,usize) {
