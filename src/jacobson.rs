@@ -9,7 +9,7 @@ impl Dim for usize {
   fn dim(self) -> usize { self }
 }
 
-/// A `k^d` tree is a generalized Jacobson tree encoding for a 2^d-radix tree
+/// A `k^d` tree as a generalized Jacobson tree encoding for a 2^d-radix tree
 #[derive(Copy,Clone,Debug)]
 pub struct Tree<K,D> {
   pub index: K,
