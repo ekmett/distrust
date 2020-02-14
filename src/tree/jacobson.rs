@@ -7,6 +7,9 @@ struct Jacobson<K,D> {
   pub data: D // array or vector or other structure holding the data per element
 }
 
+impl <K,D> Jacobson<K,D> {
+}
+
 impl <K:BoolRank+Access<Item=bool>,D:Access> Store<D::Item> for Jacobson<K,D> where D::Item : Clone {
   type Id = usize;
   fn at(&self, i: usize) -> View<usize,D::Item> {
@@ -18,3 +21,6 @@ impl <K:BoolRank+Access<Item=bool>,D:Access> Store<D::Item> for Jacobson<K,D> wh
     }
   }
 }
+
+// now we need an anamorphism that can produce one of these
+
