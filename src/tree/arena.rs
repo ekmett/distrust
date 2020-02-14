@@ -19,6 +19,16 @@ impl <T:Clone> Store<T> for Arena<T> {
   }
 }
 
+impl <T:Clone> Store<T> for &Arena<T> {
+  type Id = PackedId;
+  fn at(&self,p: PackedId) -> View<PackedId,T> {
+    match p.unpack() {
+      UnpackedId::Bin(i) => { let (l,r) = self.bins[i]; View::Bin(l,r) },
+      UnpackedId::Tip(i) => View::Tip(self.tips[i].clone())
+    }
+  }
+}
+
 impl <T:Clone> MutableStore<T> for Arena<T> {
   fn tip(&mut self,item: T) -> PackedId {
     let id = self.tips.len();
@@ -66,25 +76,26 @@ impl PackedId {
   }
 }
 
+// rooted arena-based tree
 #[derive(Clone,Debug)]
 pub struct ArenaTree<T> {
   arena: Rc<Arena<T>>,
-  head: View<PackedId,T>
+  head: PackedId
 }
 
 impl <T:Copy> Decoder for ArenaTree<T> {
   type Symbol = bool;
   type Value = T;
-  type Cursor = ArenaTree<T>;
-  fn decoder(&self) -> ArenaTree<T> { self.clone() } // panic!("heh") }  // self.clone() }
-  fn step(cursor: &mut ArenaTree<T>, next: bool) -> bool {
-    match cursor.head {
-      View::Bin(l,r) => { cursor.head = cursor.arena.as_ref().at(if next { l } else { r }); true }
+  type Cursor = View<PackedId,T>;
+  fn decoder(&self) -> Self::Cursor { self.arena.as_ref().at(self.head) }
+  fn step(&self,cursor: &mut Self::Cursor, next: bool) -> bool {
+    match *cursor {
+      View::Bin(l,r) => { *cursor = self.arena.as_ref().at(if next { l } else { r }); true }
       _ => false
     }
   }
-  fn value(cursor: ArenaTree<T>) -> Option<T> {    
-    match cursor.head {
+  fn value(&self,cursor: Self::Cursor) -> Option<T> {
+    match cursor {
       View::Tip(t) => Some(t),
       _ => None
     }

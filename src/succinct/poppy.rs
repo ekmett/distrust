@@ -65,16 +65,31 @@ impl IntoIterator for Poppy {
   }
 }
 
-impl Rank for &Poppy {
-  fn rank(self, i: usize) -> usize {
-    let (w,z) = ((i>>9)<<3, bextr(i,6,3)); // first word in the current selected subblock, word we're interested in in the subblock
-    let r = (0..z).fold(0,|a,b| a+self.2[w+b].count_ones());
-    self.0[i>>31] + (self.1[i>>11].base(bextr(i as u32,9,2)) + r) as usize + self.2[w+z].rank(i&63)
+impl Rank for Poppy {
+  type Item = bool;
+  #[inline]
+  fn rank(&self, item: bool, i: usize) -> usize {
+    let j = self.rank1(i);
+    if item { j } else { i - j }
   }
 }
 
-impl Access for &Poppy {
-  fn access(self, i: usize) -> bool { self.2.access(i) }
+impl BoolRank for Poppy {
+  fn rank1(&self, i: usize) -> usize {
+    let (w,z) = ((i>>9)<<3, bextr(i,6,3)); // first word in the current selected subblock, word we're interested in in the subblock
+    let r = (0..z).fold(0,|a,b| a+self.2[w+b].count_ones());
+    self.0[i>>31] + (self.1[i>>11].base(bextr(i as u32,9,2)) + r) as usize + self.2[w+z].rank1(i&63)
+  }
+  #[inline]
+  fn rank0(&self, i: usize) -> usize { 
+    i - self.rank1(i)
+  }
+}
+
+impl Access for Poppy {
+  type Item = bool;
+  #[inline]
+  fn access(&self, i: usize) -> bool { self.2.access(i) }
 }
 
 fn select1_block(m:usize,i:usize) -> (usize,usize) {
@@ -87,9 +102,9 @@ fn select1_block(m:usize,i:usize) -> (usize,usize) {
   return (t2,3);
 }
 
-impl Select1 for &Poppy {
+impl Select1 for Poppy {
   /// O(log n)
-  fn select1(self, mut i: usize) -> usize {
+  fn select1(&self, mut i: usize) -> usize {
     let hi = binary_search(1,self.0.len(),|m| self.0[m] > i) - 1;
     let mut o = self.0[hi];
     i -= o;
@@ -104,7 +119,7 @@ impl Select1 for &Poppy {
       let w = self.2[p];
       let d = w.count_ones() as usize;
       if d > i {
-        return o + select1(w,i);
+        return o + select1_prim(w,i);
       }
       o += d; i -= d; p += 1;
     }

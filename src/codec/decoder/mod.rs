@@ -7,11 +7,11 @@ pub trait Decoder {
   type Value;
   type Cursor;
   fn decoder(&self) -> Self::Cursor;
-  fn step(cursor: &mut Self::Cursor, next: Self::Symbol) -> bool;
-  fn value(cursor: Self::Cursor) -> Option<Self::Value>;
+  fn step(&self, cursor: &mut Self::Cursor, next: Self::Symbol) -> bool;
+  fn value(&self, cursor: Self::Cursor) -> Option<Self::Value>;
   fn decode<I:Iterator<Item=Self::Symbol>>(&self,t: &mut I) -> Option<Self::Value> {
     let mut d = self.decoder();
-    when(t.all(|i|Self::step(&mut d,i)))?;
-    Self::value(d)
+    when(t.all(|i|self.step(&mut d,i)))?;
+    self.value(d)
   }
 } 
