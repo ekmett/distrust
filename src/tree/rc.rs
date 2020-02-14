@@ -11,11 +11,12 @@ impl <T:Clone> Store<T> for RcStore {
     i.0.as_ref().clone()
   }
 }
+
 impl <T:Clone> MutableStore<T> for RcStore {
   fn tip(&mut self, item: T) -> RcTree<T> { 
     RcTree(Rc::new(View::Tip(item)))
   }
   fn bin(&mut self, l: RcTree<T>, r: RcTree<T>) -> RcTree<T> {
     RcTree(Rc::new(View::Bin(l,r)))
-  }  
+  }
 }

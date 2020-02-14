@@ -1,6 +1,3 @@
-use std::rc::Rc;
-use crate::codec::decoder::*;
-//use crate::util::unless;
 use crate::tree::*;
 
 #[derive(Clone,Debug)]
@@ -73,31 +70,5 @@ impl PackedId {
   }
   fn bin(i: usize) -> PackedId {
     PackedId(((i<<1)+1) as u32)
-  }
-}
-
-// rooted arena-based tree
-#[derive(Clone,Debug)]
-pub struct ArenaTree<T> {
-  arena: Rc<Arena<T>>,
-  head: PackedId
-}
-
-impl <T:Copy> Decoder for ArenaTree<T> {
-  type Symbol = bool;
-  type Value = T;
-  type Cursor = View<PackedId,T>;
-  fn decoder(&self) -> Self::Cursor { self.arena.as_ref().at(self.head) }
-  fn step(&self,cursor: &mut Self::Cursor, next: bool) -> bool {
-    match *cursor {
-      View::Bin(l,r) => { *cursor = self.arena.as_ref().at(if next { l } else { r }); true }
-      _ => false
-    }
-  }
-  fn value(&self,cursor: Self::Cursor) -> Option<T> {
-    match cursor {
-      View::Tip(t) => Some(t),
-      _ => None
-    }
   }
 }

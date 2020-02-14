@@ -1,23 +1,13 @@
 #![allow(dead_code)]
 
-pub mod succinct;
-pub mod constant;
 pub mod codec;
+pub mod succinct;
 pub mod tree;
-
-pub trait Dim: Copy {
-  fn dim(self) -> usize;
-}
-
-/// dynamic size
-impl Dim for usize {
-  fn dim(self) -> usize { self }
-}
 
 #[inline]
 pub(crate) fn div_rem(x:usize,y:usize) -> (usize,usize) { (x/y,x%y) }
 
-// Assumes lo <= hi. returns hi if the predicate is never true over [lo..hi)
+/// Assumes lo <= hi. returns hi if the predicate is never true over [lo..hi)
 #[inline]
 pub(crate) fn binary_search<P>(mut lo: usize, mut hi: usize, p: P) -> usize where P: Fn(usize) -> bool {
   loop {
