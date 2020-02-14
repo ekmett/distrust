@@ -1,13 +1,14 @@
 #![allow(dead_code,non_snake_case)]
 
 mod poppy;
+mod jacobson;
 
 use bitintr::x86::bmi2::{pdep,bzhi};
 use crate::util::div_rem;
 use std::mem::size_of;
 
 pub trait Access {
-  fn access(self, index:  usize) -> bool;
+  fn access(self, index: usize) -> bool;
 }
 
 pub trait Select1 {
@@ -45,10 +46,14 @@ macro_rules! impl_rank_select {
   ($type:ty) => {
     impl Rank for $type {
       #[inline]
-      fn rank(self, i: usize) -> usize { bzhi(self,i as $type).count_ones() as usize }
+      fn rank(self, i: usize) -> usize { 
+        bzhi(self,i as $type).count_ones() as usize 
+      }
     }
     impl Access for $type {
-      fn access(self, i: usize) -> bool { (self & 1 << i) != 0 }
+      fn access(self, i: usize) -> bool { 
+        (self & (1 << i)) != 0 
+      }
     }
     impl Select0 for $type {
       #[inline]
