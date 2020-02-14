@@ -14,7 +14,7 @@ impl <K:BoolRank+Access<Item=bool>,T:Clone> Store<T> for Jacobson<K,T> {
       let j = self.index.rank1(2*i);
       View::Bin(j,j+1)
     } else {
-      View::Tip(self.data[i-self.index.rank1(i)].clone())
+      View::Tip(self.data[self.index.rank0(i)].clone())
     }
   }
 }
