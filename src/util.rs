@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 #[inline]
 pub fn div_rem(x:usize,y:usize) -> (usize,usize) { (x/y,x%y) }
 
@@ -11,4 +13,12 @@ pub fn binary_search<P>(mut lo: usize, mut hi: usize, p: P) -> usize where P: Fn
     if p(mid) { hi = mid; }
     else { lo = mid+1; }
   }
+}
+
+pub fn when(b: bool) -> Option<()> {
+  if b { Some(()) } else { None }
+}
+
+pub fn unless(b: bool) -> Option<()> {
+  if b { None } else { Some(()) }
 }
