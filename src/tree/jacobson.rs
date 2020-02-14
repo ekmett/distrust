@@ -1,13 +1,5 @@
 use crate::succinct::*;
-
-pub trait Dim: Copy {
-  fn dim(self) -> usize;
-}
-
-/// dynamic size
-impl Dim for usize {
-  fn dim(self) -> usize { self }
-}
+use crate::Dim;
 
 /// A `k^d` tree as a generalized Jacobson tree encoding for a 2^d-radix tree
 #[derive(Copy,Clone,Debug)]

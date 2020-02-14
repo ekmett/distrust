@@ -1,5 +1,6 @@
 pub mod rc;
 pub mod arena;
+pub mod jacobson;
 
 // fat binary dag leafy tree
 #[derive(Copy,Clone,Debug)]

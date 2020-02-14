@@ -1,5 +1,5 @@
 use std::iter::Iterator;
-use crate::util::when;
+use crate::when;
 
 // all codes must take 1 bit or more
 pub trait Decoder {

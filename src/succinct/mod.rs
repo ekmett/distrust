@@ -1,10 +1,9 @@
 #![allow(dead_code,non_snake_case)]
 
 mod poppy;
-mod jacobson;
 
 use bitintr::x86::bmi2::{pdep,bzhi};
-use crate::util::div_rem;
+use crate::div_rem;
 use std::mem::size_of;
 
 pub trait Access {

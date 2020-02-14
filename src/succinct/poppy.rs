@@ -4,7 +4,7 @@
 
 use bitintr::x86::bmi::bextr;
 use bitintr::x86::bmi2::bzhi;
-use crate::util::{binary_search};
+use crate::binary_search;
 use crate::succinct::*;
 use std::cmp::min;
 use std::iter::{IntoIterator,FromIterator};
