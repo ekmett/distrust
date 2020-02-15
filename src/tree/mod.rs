@@ -14,6 +14,7 @@ pub enum View<Id,T> {
 
 impl <A,T> View<A,T> {
   // linear left map
+  #[inline]
   fn llmap<F,B>(self,f: F) -> View<B,T> where F : Fn(A) -> B {
     match self {
       View::Bin(l,r) => View::Bin(f(l),f(r)),
@@ -25,24 +26,24 @@ impl <A,T> View<A,T> {
 pub trait Store<T:Clone> {
   type Id : Clone;
   fn at(&self, i: Self::Id) -> View<Self::Id,T>;
-//   fn fold<F,S>(&self, phi: F, root: Self::Id) -> S where F : Fn(View<S,T>) -> S {
-//     match self.at(root) {
-//       View::Tip(t) => phi(View::Tip(t)),
-//       View::Bin(l,r) => {
-//         let lp = self.fold(phi,l);
-//         let rp = self.fold(phi,r);
-//         phi(View::Bin(lp,rp))
-//       }
-//     }
-//   }
+  fn fold<F,S>(&self, phi: &F, root: Self::Id) -> S where F : Fn(View<S,T>) -> S {
+    phi(self.at(root).llmap(|x|self.fold(phi,x)))
+  }
 }
 
 pub trait MutableStore<T:Clone> : Store<T> {
   fn tip(&mut self, item: T) -> Self::Id;
   fn bin(&mut self, l: Self::Id, r: Self::Id) -> Self::Id;
-//   fn unfold<F,S>(&self, psi: F, s: S) -> Self::Id where F: Fn(S) -> View<S,T> {
-//     panic!("disco")
-//   }
+  fn unfold<F,S>(&mut self, psi: &F, s: S) -> Self::Id where F: Fn(S) -> View<S,T> {
+    match psi(s) {
+      View::Bin(l,r) => {
+        let lp = self.unfold(psi,l);
+        let rp = self.unfold(psi,r);
+        self.bin(lp,rp)
+      }, 
+      View::Tip(t) => self.tip(t)
+    }
+  }
 }
 
 // tree, TODO: generalize to any instance of Store
