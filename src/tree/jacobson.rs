@@ -8,6 +8,7 @@ struct Jacobson<K,D> {
 }
 
 impl <K,D> Jacobson<K,D> {
+  // needs its own custom unfold
 }
 
 impl <K:BoolRank+Access<Item=bool>,D:Access> Store<D::Item> for Jacobson<K,D> where D::Item : Clone {
@@ -22,5 +23,4 @@ impl <K:BoolRank+Access<Item=bool>,D:Access> Store<D::Item> for Jacobson<K,D> wh
   }
 }
 
-// now we need an anamorphism that can produce one of these
 

@@ -34,13 +34,20 @@ pub trait Store<T:Clone> {
 pub trait MutableStore<T:Clone> : Store<T> {
   fn tip(&mut self, item: T) -> Self::Id;
   fn bin(&mut self, l: Self::Id, r: Self::Id) -> Self::Id;
+  // self.at(self.inj(x)) = x // but we also insert into the store
+  fn inj(&mut self, s: View<Self::Id,T>) -> Self::Id {
+    match s {
+      View::Bin(l,r) => self.bin(l,r),
+      View::Tip(t) => self.tip(t)
+    }
+  }
   fn unfold<F,S>(&mut self, psi: &F, s: S) -> Self::Id where F: Fn(S) -> View<S,T> {
     match psi(s) {
       View::Bin(l,r) => {
         let lp = self.unfold(psi,l);
         let rp = self.unfold(psi,r);
         self.bin(lp,rp)
-      }, 
+      },
       View::Tip(t) => self.tip(t)
     }
   }

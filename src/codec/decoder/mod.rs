@@ -1,6 +1,5 @@
 use std::iter::Iterator;
 
-// all codes must take 1 bit or more
 pub trait Decoder {
   type Symbol;
   type Value;
@@ -11,4 +10,4 @@ pub trait Decoder {
   fn decode<I:Iterator<Item=Self::Symbol>>(&self,t: &mut I) -> Option<Self::Value> {
     self.value(t.try_fold(self.decoder(),|a,i|self.step(a,i))?)
   }
-} 
+}
